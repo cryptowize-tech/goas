@@ -77,6 +77,7 @@ type OperationObject struct {
 	Description string             `json:"description,omitempty"`
 	Parameters  []ParameterObject  `json:"parameters,omitempty"`
 	RequestBody *RequestBodyObject `json:"requestBody,omitempty"`
+	Security    []SecurityObject   `json:"security,omitempty"`
 
 	// Tags
 	// ExternalDocs
@@ -111,6 +112,8 @@ type ParameterObject struct {
 type ReferenceObject struct {
 	Ref string `json:"$ref,omitempty"`
 }
+
+type SecurityObject map[string][]string
 
 type RequestBodyObject struct {
 	Content map[string]*MediaTypeObject `json:"content"` // Required

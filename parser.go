@@ -669,6 +669,8 @@ func (p *parser) parseOperation(pkgPath, pkgName string, astComments []*ast.Comm
 			}
 		case "@route", "@router":
 			err = p.parseRouteComment(operation, comment)
+		case "@security":
+			err = p.parseRouteSecurityComment(operation, comment)
 		}
 		if err != nil {
 			return err
@@ -889,6 +891,42 @@ func (p *parser) parseRouteComment(operation *OperationObject, comment string) e
 		p.OpenAPI.Paths[matches[1]].Trace = operation
 	}
 
+	return nil
+}
+
+func (p *parser) parseRouteSecurityComment(operation *OperationObject, comment string) error {
+	fields := strings.Split(comment, " ")
+	if len(fields) < 2 {
+		return fmt.Errorf("can not parse router security \"%s\", not enougth specification", comment)
+	}
+
+	requestedSecurity := fields[1]
+	requestedSecurityScopes := fields[2:]
+
+	var key string
+	scopes := []string{}
+	for _, s := range p.OpenAPI.Security {
+		if securityScopes, ok := s[requestedSecurity]; ok {
+			key = requestedSecurity
+
+			if len(requestedSecurityScopes) == 0 {
+				continue
+			}
+			for _, scope := range requestedSecurityScopes {
+				if isInStringList(securityScopes, scope) {
+					scopes = append(scopes, scope)
+				}
+			}
+		}
+	}
+
+	if key == "" {
+		return fmt.Errorf("can not parse router security: requested security '%s' not found in security definitions", requestedSecurity)
+	}
+
+	operation.Security = append(operation.Security, SecurityObject{
+		key: scopes,
+	})
 	return nil
 }
 
