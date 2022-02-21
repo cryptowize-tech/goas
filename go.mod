@@ -1,4 +1,4 @@
-module github.com/mikunalpha/goas
+module github.com/cryptowize-tech/goas
 
 go 1.12
 
