@@ -69,6 +69,10 @@ func isInStringList(list []string, s string) bool {
 	return false
 }
 
+var specialGoTypes = map[string]bool{
+	"uuid.UUID": true,
+}
+
 var basicGoTypes = map[string]bool{
 	"bool":       true,
 	"uint":       true,
@@ -94,6 +98,11 @@ var basicGoTypes = map[string]bool{
 
 func isBasicGoType(typeName string) bool {
 	_, ok := basicGoTypes[typeName]
+	return ok
+}
+
+func isSpecialGoType(typeName string) bool {
+	_, ok := specialGoTypes[typeName]
 	return ok
 }
 

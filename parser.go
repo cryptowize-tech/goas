@@ -1034,6 +1034,12 @@ func (p *parser) parseSchemaObject(pkgPath, pkgName, typeName string) (*SchemaOb
 		pkgPath, pkgName = guessPkgPath, guessPkgName
 	}
 
+	if typeSpec.Name.String() == "UUID" {
+		schemaObject.Type = "string"
+		schemaObject.Format = "uuid"
+		return &schemaObject, nil
+	}
+
 	if astIdent, ok := typeSpec.Type.(*ast.Ident); ok {
 		_ = astIdent
 	} else if astStructType, ok := typeSpec.Type.(*ast.StructType); ok {
@@ -1131,6 +1137,8 @@ astFieldsLoop:
 				p.debug(err)
 				return
 			}
+		} else if isSpecialGoType(typeAsString) {
+			// skip here
 		} else if !isBasicGoType(typeAsString) {
 			fieldSchemaSchemeaObjectID, err := p.registerType(pkgPath, pkgName, typeAsString)
 			if err != nil {
