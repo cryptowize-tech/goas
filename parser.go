@@ -903,29 +903,12 @@ func (p *parser) parseRouteSecurityComment(operation *OperationObject, comment s
 	requestedSecurity := fields[1]
 	requestedSecurityScopes := fields[2:]
 
-	var key string
-	scopes := []string{}
-	for _, s := range p.OpenAPI.Security {
-		if securityScopes, ok := s[requestedSecurity]; ok {
-			key = requestedSecurity
-
-			if len(requestedSecurityScopes) == 0 {
-				continue
-			}
-			for _, scope := range requestedSecurityScopes {
-				if isInStringList(securityScopes, scope) {
-					scopes = append(scopes, scope)
-				}
-			}
-		}
-	}
-
-	if key == "" {
-		return fmt.Errorf("can not parse router security: requested security '%s' not found in security definitions", requestedSecurity)
+	if _, ok := p.OpenAPI.Components.SecuritySchemes[requestedSecurity]; !ok {
+		return fmt.Errorf("can not parse router security: requested security '%s' not found in security definitions for path: %s", requestedSecurity, operation.Summary)
 	}
 
 	operation.Security = append(operation.Security, SecurityObject{
-		key: scopes,
+		requestedSecurity: requestedSecurityScopes,
 	})
 	return nil
 }
